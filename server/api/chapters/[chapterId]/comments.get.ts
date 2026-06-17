@@ -1,9 +1,10 @@
 import prisma from '~/server/utils/prisma'
+import { commentFilters } from '~/server/utils/validators'
 
 export default defineEventHandler(async (event) => {
   const chapterId = Number(event.context.params?.chapterId)
   const query = getQuery(event)
-  const paragraph = query.paragraph ? Number(query.paragraph) : undefined
+  const paragraphParam = query.paragraph
 
   if (!chapterId || isNaN(chapterId)) {
     throw createError({
@@ -12,13 +13,20 @@ export default defineEventHandler(async (event) => {
     })
   }
 
-  const where: any = {
-    chapterId,
-    parentId: null
-  }
-
-  if (paragraph !== undefined) {
-    where.paragraph = paragraph
+  let where
+  if (paragraphParam === 'all') {
+    where = commentFilters.allParagraphComments(chapterId)
+  } else if (paragraphParam !== undefined) {
+    const paragraph = Number(paragraphParam)
+    if (isNaN(paragraph)) {
+      throw createError({
+        statusCode: 400,
+        message: '无效的段落索引'
+      })
+    }
+    where = commentFilters.paragraphComments(chapterId, paragraph)
+  } else {
+    where = commentFilters.chapterComments(chapterId)
   }
 
   const comments = await prisma.comment.findMany({
