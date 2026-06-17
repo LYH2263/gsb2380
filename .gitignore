@@ -1,0 +1,15 @@
+# 题目与对话记录（本地参考，不纳入版本库）
+题目.md
+对话/
+
+node_modules
+.nuxt
+.output
+dist
+*.log
+.DS_Store
+.env.local
+.env.*.local
+coverage
+.nyc_output
+*.tsbuildinfo
