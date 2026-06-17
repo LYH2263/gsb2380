@@ -1,4 +1,5 @@
 import prisma from '~/server/utils/prisma'
+import { chapterCommentWhere, paragraphCommentWhere } from '~/server/utils/validators'
 
 export default defineEventHandler(async (event) => {
   const novelId = Number(event.context.params?.id)
@@ -27,6 +28,7 @@ export default defineEventHandler(async (event) => {
         }
       },
       comments: {
+        where: chapterCommentWhere(chapterId),
         include: {
           user: {
             select: { id: true, username: true, avatar: true }
@@ -40,7 +42,6 @@ export default defineEventHandler(async (event) => {
             orderBy: { createdAt: 'asc' }
           }
         },
-        where: { parentId: null },
         orderBy: { createdAt: 'desc' }
       }
     }
@@ -52,6 +53,16 @@ export default defineEventHandler(async (event) => {
       message: '章节不存在'
     })
   }
+
+  const paragraphComments = await prisma.comment.findMany({
+    where: paragraphCommentWhere(chapterId),
+    include: {
+      user: {
+        select: { id: true, username: true, avatar: true }
+      }
+    },
+    orderBy: { createdAt: 'desc' }
+  })
 
   // 获取相邻章节
   const [prevChapter, nextChapter] = await Promise.all([
@@ -75,6 +86,7 @@ export default defineEventHandler(async (event) => {
 
   return {
     ...chapter,
+    paragraphComments,
     prevChapter,
     nextChapter
   }
