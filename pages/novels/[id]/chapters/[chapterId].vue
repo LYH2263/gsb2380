@@ -276,9 +276,9 @@ const paragraphs = computed(() => {
 
 // Group comments by paragraph
 const paragraphComments = computed(() => {
-  if (!chapter.value?.comments) return {}
+  if (!chapter.value?.paragraphComments) return {}
   const grouped: Record<number, any[]> = {}
-  chapter.value.comments.forEach((comment: any) => {
+  chapter.value.paragraphComments.forEach((comment: any) => {
     if (comment.paragraph !== null) {
       if (!grouped[comment.paragraph]) {
         grouped[comment.paragraph] = []

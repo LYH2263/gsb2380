@@ -1,4 +1,5 @@
 import prisma from '~/server/utils/prisma'
+import { chapterCommentWhere, paragraphCommentWhere } from '~/server/utils/validators'
 
 export default defineEventHandler(async (event) => {
   const chapterId = Number(event.context.params?.chapterId)
@@ -12,14 +13,9 @@ export default defineEventHandler(async (event) => {
     })
   }
 
-  const where: any = {
-    chapterId,
-    parentId: null
-  }
-
-  if (paragraph !== undefined) {
-    where.paragraph = paragraph
-  }
+  const where = paragraph !== undefined
+    ? paragraphCommentWhere(chapterId, paragraph)
+    : chapterCommentWhere(chapterId)
 
   const comments = await prisma.comment.findMany({
     where,
