@@ -34,3 +34,28 @@ export const commentSchema = z.object({
 export const ratingSchema = z.object({
   score: z.number().int().min(1, '评分最少1分').max(5, '评分最多5分')
 })
+
+export const commentFilters = {
+  chapterComments: {
+    paragraph: null,
+    parentId: null
+  },
+
+  paragraphComments: (paragraph: number) => ({
+    paragraph,
+    parentId: null
+  }),
+
+  allParagraphComments: {
+    paragraph: { not: null },
+    parentId: null
+  },
+
+  isChapterComment: {
+    paragraph: null
+  },
+
+  isParagraphComment: {
+    paragraph: { not: null }
+  }
+}

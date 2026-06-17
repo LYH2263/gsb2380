@@ -1,4 +1,5 @@
 import prisma from '~/server/utils/prisma'
+import { commentFilters } from '~/server/utils/validators'
 
 export default defineEventHandler(async (event) => {
   const novelId = Number(event.context.params?.id)
@@ -40,7 +41,7 @@ export default defineEventHandler(async (event) => {
             orderBy: { createdAt: 'asc' }
           }
         },
-        where: { parentId: null },
+        where: commentFilters.chapterComments,
         orderBy: { createdAt: 'desc' }
       }
     }

@@ -258,6 +258,10 @@ const { data: chapter, pending, refresh } = await useFetch(
   () => `/api/novels/${novelId.value}/chapters/${chapterId.value}`
 )
 
+const { data: paragraphCommentsData, refresh: refreshParagraphComments } = await useFetch(
+  () => `/api/chapters/${chapterId.value}/comments?allParagraphs=true`
+)
+
 // Comments
 const activeParagraph = ref<number | null>(null)
 const newComment = ref('')
@@ -276,15 +280,13 @@ const paragraphs = computed(() => {
 
 // Group comments by paragraph
 const paragraphComments = computed(() => {
-  if (!chapter.value?.comments) return {}
+  if (!paragraphCommentsData.value?.comments) return {}
   const grouped: Record<number, any[]> = {}
-  chapter.value.comments.forEach((comment: any) => {
-    if (comment.paragraph !== null) {
-      if (!grouped[comment.paragraph]) {
-        grouped[comment.paragraph] = []
-      }
-      grouped[comment.paragraph].push(comment)
+  paragraphCommentsData.value.comments.forEach((comment: any) => {
+    if (!grouped[comment.paragraph]) {
+      grouped[comment.paragraph] = []
     }
+    grouped[comment.paragraph].push(comment)
   })
   return grouped
 })
@@ -306,7 +308,7 @@ const submitComment = async (paragraphIndex: number) => {
       }
     })
     newComment.value = ''
-    await refresh()
+    await refreshParagraphComments()
     toast.success('评论成功')
   } catch (e: any) {
     toast.error(e.message || '评论失败')
