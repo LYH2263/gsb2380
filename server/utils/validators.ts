@@ -34,3 +34,27 @@ export const commentSchema = z.object({
 export const ratingSchema = z.object({
   score: z.number().int().min(1, '评分最少1分').max(5, '评分最多5分')
 })
+
+export const commentFilters = {
+  chapterComments: {
+    paragraph: null
+  },
+  paragraphComments: (paragraphIndex: number) => ({
+    paragraph: paragraphIndex
+  }),
+  allParagraphComments: {
+    paragraph: { not: null }
+  },
+  buildWhere: (options?: { paragraph?: number | null; parentId?: number | null; allParagraphs?: boolean }) => {
+    const where: Record<string, any> = {}
+    if (options?.allParagraphs) {
+      where.paragraph = { not: null }
+    } else if (options?.paragraph !== undefined) {
+      where.paragraph = options.paragraph
+    }
+    if (options?.parentId !== undefined) {
+      where.parentId = options.parentId
+    }
+    return where
+  }
+}

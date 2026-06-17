@@ -1,9 +1,11 @@
 import prisma from '~/server/utils/prisma'
+import { commentFilters } from '~/server/utils/validators'
 
 export default defineEventHandler(async (event) => {
   const chapterId = Number(event.context.params?.chapterId)
   const query = getQuery(event)
-  const paragraph = query.paragraph ? Number(query.paragraph) : undefined
+  const paragraph = query.paragraph !== undefined ? Number(query.paragraph) : null
+  const allParagraphs = query.allParagraphs === 'true'
 
   if (!chapterId || isNaN(chapterId)) {
     throw createError({
@@ -12,13 +14,13 @@ export default defineEventHandler(async (event) => {
     })
   }
 
-  const where: any = {
+  const where = {
     chapterId,
-    parentId: null
-  }
-
-  if (paragraph !== undefined) {
-    where.paragraph = paragraph
+    parentId: null,
+    ...commentFilters.buildWhere({
+      paragraph: allParagraphs ? undefined : paragraph,
+      allParagraphs
+    })
   }
 
   const comments = await prisma.comment.findMany({
